@@ -1,4 +1,4 @@
-# learn-v
+# Water Color Sort
 
 ## Project setup
 ```
