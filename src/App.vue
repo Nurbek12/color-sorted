@@ -1,6 +1,11 @@
 <template>
   <div class="container">
+    <Modallevels v-if="mdop" :levels="propArr"
+    @changeLevel="changeLevel"
+    :currentLevel="level"
+    @closeModal="mdop=false"/>
     <div class="reloadBtn" @click="restartLevel"><i class="fa fa-rotate-left"></i></div>
+    <div class="modallevels" @click="mdop = true"><i class="fa fa-th-large"></i></div>
     <div class="prevBtn" @click="prevGame"><i class="fa fa-mail-reply"></i></div>
     <h1 v-show="level > leng">Вы прошли все этапы</h1>
     <h1 v-show="level <= leng">Уровен {{ level }}</h1>
@@ -20,8 +25,9 @@
 </template>
 
 <script>
-import { levels } from './levels'
-import Confet from './Confet.vue'
+import { levels } from './levels';
+import Confet from './Confet.vue';
+import Modallevels from './ModalLevels.vue';
 
 export default {
   name: "App",
@@ -33,15 +39,22 @@ export default {
       tel: null,
       btlw: null,
       level: 1,
+      propArr: levels,
       leng: levels.length,
+      mdop: false,
+      endlevel: 1,
     }
   },
   components:{
-    Confet
+    Confet,
+    Modallevels
   },
   created(){
     if(localStorage.getItem('level') !== null){
-       this.level = localStorage.getItem('level');
+      this.level = localStorage.getItem('level');
+    }
+    if(localStorage.getItem('endlevel') !== null){
+      this.endlevel = localStorage.getItem('endlevel');
     }
     this.levelUp()
   },
@@ -49,9 +62,19 @@ export default {
     restartLevel(){
       window.location.reload();
     },
+    changeLevel(e){
+      this.level = e;
+      localStorage.setItem('level', e)
+      this.mdop = false;
+      this.levelUp();
+    },
     levelUp(){
       localStorage.setItem('prevGame', null)
-      this.gameArray = levels[this.level - 1]
+      this.gameArray = this.propArr[this.level - 1]
+      if(this.level > this.endlevel && this.endlevel < levels.length){
+        localStorage.setItem('endlevel', this.endlevel)
+        this.endlevel++;
+      }
     },
     prevGame(){
       let prevArray = JSON.parse(localStorage.getItem('prevGame'));
@@ -361,6 +384,7 @@ body{
     transform: translateX(10px);
   }
 }
+.modallevels,
 .reloadBtn,
 .prevBtn{
   position: fixed;
@@ -382,5 +406,8 @@ body{
 }
 .reloadBtn{
   bottom: 130px;
+}
+.modallevels{
+  bottom: 200px;
 }
 </style>
