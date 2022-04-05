@@ -40,9 +40,9 @@ export default {
     Confet
   },
   created(){
-    // if(localStorage.getItem('level') !== null){
-    //   this.level = localStorage.getItem('level');
-    // }
+    if(localStorage.getItem('level') !== null){
+       this.level = localStorage.getItem('level');
+    }
     this.levelUp()
   },
   methods: {
@@ -56,17 +56,8 @@ export default {
     prevGame(){
       let prevArray = JSON.parse(localStorage.getItem('prevGame'));
       if(prevArray === null) return;
-      // console.log(this.prevArray,this.gameArray)
-      // console.table(this.prevArray)
-      // if(this.prevArray === null) return
-      // console.log('full')
-      // console.table(this.prevArray)
-      // console.table(this.gameArray)
-      // this.gameArray = this.prevArray[0];
-      // this.gameArray = localStorage.getItem('prevGame')[0]
       this.gameArray = prevArray[0];
       localStorage.setItem('prevGame', null)
-      // this.prevArray = null;
     },
     colorPick(n) {
       switch (n) {
