@@ -1,8 +1,11 @@
 <template>
   <div class="container">
-    <h1 v-show="level > 4">You Win all the levels</h1>
-    <h1 v-show="level <= 4">Level {{ level }}</h1>
-    <div class="wrapper" id="wrapper" v-show="level <= 4">
+    <div class="reloadBtn" @click="restartLevel"><i class="fa fa-rotate-left"></i></div>
+    <div class="prevBtn" @click="prevGame"><i class="fa fa-mail-reply"></i></div>
+    <h1 v-show="level > leng">Вы прошли все этапы</h1>
+    <h1 v-show="level <= leng">Уровен {{ level }}</h1>
+    <pre>{{ levels }}</pre>
+    <div class="wrapper" id="wrapper" v-show="level <= leng">
           <div class="bottle" v-for="(bt, i) in gameArray" :key="i"
           @click="BottleHandler" :data-number="i">
             <transition-group name="color">
@@ -17,7 +20,7 @@
 </template>
 
 <script>
-import levels from './levels'
+import { levels } from './levels'
 import Confet from './Confet.vue'
 
 export default {
@@ -30,17 +33,40 @@ export default {
       tel: null,
       btlw: null,
       level: 1,
+      leng: levels.length,
     }
   },
   components:{
     Confet
   },
   created(){
+    // if(localStorage.getItem('level') !== null){
+    //   this.level = localStorage.getItem('level');
+    // }
     this.levelUp()
   },
   methods: {
+    restartLevel(){
+      window.location.reload();
+    },
     levelUp(){
-      this.gameArray = levels[this.level - 1].map
+      localStorage.setItem('prevGame', null)
+      this.gameArray = levels[this.level - 1]
+    },
+    prevGame(){
+      let prevArray = JSON.parse(localStorage.getItem('prevGame'));
+      if(prevArray === null) return;
+      // console.log(this.prevArray,this.gameArray)
+      // console.table(this.prevArray)
+      // if(this.prevArray === null) return
+      // console.log('full')
+      // console.table(this.prevArray)
+      // console.table(this.gameArray)
+      // this.gameArray = this.prevArray[0];
+      // this.gameArray = localStorage.getItem('prevGame')[0]
+      this.gameArray = prevArray[0];
+      localStorage.setItem('prevGame', null)
+      // this.prevArray = null;
     },
     colorPick(n) {
       switch (n) {
@@ -64,6 +90,10 @@ export default {
           return "green";
         case 10:
           return "deeppink";
+        case 11:
+          return "cyan";
+        case 12:
+          return "gray";
       }
     },
     BottleHandler(e) {
@@ -99,6 +129,9 @@ export default {
       }
       return false;
     },
+    imptoprevArr(arr){
+      localStorage.setItem('prevGame', JSON.stringify({0: arr}))
+    },
     cotrolGame(a, b) {
       let x1 = this.enW(this.gameArray[a]);
       let x2 = this.enW(this.gameArray[b]);
@@ -107,6 +140,9 @@ export default {
         (this.gameArray[a][x1] !== undefined && this.gameArray[b][x2] == this.gameArray[a][x1] && x2 !== 0) ||
         (this.gameArray[a][x1] !== undefined && x2 === 4)
       ) {
+        this.imptoprevArr(this.gameArray)
+        // let prevArr = this.gameArray;
+        // this.prevArray = prevArr; 
         stp = this.gameArray[a][x1];
         while(stp === this.gameArray[a][x1] && this.x2 !== 0){
           this.gameArray[b][x2 === 4 ? 3 : x2 - 1] = this.gameArray[a][x1];
@@ -117,7 +153,11 @@ export default {
         if (this.gameWin()) {
           setTimeout(() => {
             this.level++;
-            if(this.level > 4) return;
+            if(this.level > levels.length) {
+              localStorage.setItem('level', 1)
+              return;
+            }
+            localStorage.setItem('level', this.level)
             this.levelUp()
           }, 1000)
         }
@@ -146,7 +186,10 @@ export default {
           }
         }
       }
-      if (summ == this.gameArray.length * 4) return true;
+      if (summ == this.gameArray.length * 4) {
+        this.prevArray = [];
+        return true;
+      }
       return false;
     },
   },
@@ -159,6 +202,9 @@ export default {
   padding: 0;
   box-sizing: border-box;
   font-family: sans-serif;
+}
+body{
+  background: #111;
 }
 .container {
   width: 100%;
@@ -277,6 +323,12 @@ export default {
 .color.deeppink{
   background: deeppink;
 }
+.color.cyan{
+  background: cyan;
+}
+.color.gray{
+  background: gray;
+}
 /* .bottle.isSwap {
   animation: swaping 2s linear forwards;
 } */
@@ -317,5 +369,27 @@ export default {
   75%{
     transform: translateX(10px);
   }
+}
+.reloadBtn,
+.prevBtn{
+  position: fixed;
+  right: 0;
+  width: 60px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 10px 0 0 10px;
+  box-shadow: inset 0 -6px 0 1px #0006;
+  background: rgb(18, 201, 201);
+  font-size: 2rem;
+  z-index: 5;
+}
+.prevBtn{
+  bottom: 60px;
+}
+.reloadBtn{
+  bottom: 130px;
 }
 </style>
